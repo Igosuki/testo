@@ -6,14 +6,16 @@ import {
   Get,
   NotFoundException,
   Param,
+  ParseIntPipe,
   Post,
+  Query,
 } from '@nestjs/common';
 import { BookingsRepo } from './booking.repo';
 import {
   Booking,
   BookingRequest,
   BookingRequestDocument,
-  MAX_TABLES,
+  MAX_GUESTS,
   TABLE_SIZE,
 } from './booking.schema';
 import { MailerService } from '@nestjs-modules/mailer';
@@ -35,18 +37,19 @@ const checkNotAfterHours = (date: Date) => {
 export class BookingController {
   constructor(private repo: BookingsRepo, private mailer: MailerService) {}
 
-  @Get('/available')
-  async availableDates(
-    @Param() month: number,
-    @Param() year: number
-  ): Promise<any> {
-    const from: Date = new Date(year, month, 0);
-    const to: Date = new Date(year, month + 1, 0);
-    return this.repo.availableDates(from, to, MAX_TABLES);
+  @Get('/fulldates')
+  async fullDates(
+    @Query('month', ParseIntPipe) month: number,
+    @Query('year', ParseIntPipe) year: number
+  ): Promise<string[]> {
+    const dt = DateTime.local(year, month, 1, { zone: 'Europe/Paris' });
+    const from: Date = dt.toJSDate();
+    const to: Date = dt.plus({ month: 1 }).toJSDate();
+    return this.repo.fullDates(from, to, MAX_GUESTS);
   }
 
   @Post()
-  async newBooking(@Body() booking: Booking): Promise<BookingRequest> {
+  async newBooking(@Body() booking: Booking) {
     checkNotAfterHours(new Date(Date.now()));
     const dt = DateTime.fromJSDate(booking.date).setZone('Europe/Paris');
     if (dt.hour != 20) {
@@ -55,16 +58,19 @@ export class BookingController {
     const tableCount = await this.repo.tableCount(booking.date);
     if (
       tableCount + Math.ceil(booking.numguests / TABLE_SIZE) * TABLE_SIZE >
-      MAX_TABLES
+      MAX_GUESTS
     ) {
       throw new BadRequestException({ message: 'validation.bookingsfull' });
     }
-    if (await this.repo.hasBooking(booking.email, booking.date)) {
+    if (
+      (await this.repo.hasBooking(booking.email, booking.date)) ||
+      (await this.repo.hasBookingRequest(booking.email, booking.date))
+    ) {
       throw new BadRequestException({ message: 'validation.sameday' });
     }
     const pendingRequest: BookingRequest = BookingRequest.fromBooking(booking);
     const created = await this.repo.createBookingRequest(pendingRequest);
-    let sent = await this.mailer.sendMail({
+    await this.mailer.sendMail({
       to: created.email,
       from: environment.noreplyAddress,
       subject: 'Booking confirmation code',
@@ -76,11 +82,13 @@ export class BookingController {
         bookingDateStr: created.date.toDateString(),
       },
     });
-    return created;
   }
 
   @Post('/code')
-  async confirmCode(@Param() email: string, @Param() code: string) {
+  async confirmCode(
+    @Query('email') email: string,
+    @Query('code') code: string
+  ) {
     const pending = await this.repo.findRequestByEmail(email);
     const matchingRequest = pending.find((pr) => pr.code === code);
     if (!matchingRequest) {
@@ -91,7 +99,7 @@ export class BookingController {
   }
 
   async confirmRequest(req: BookingRequestDocument) {
-    const booking: Booking = { ...req };
+    const booking: Booking = Booking.fromRequest(req);
     const created = await this.repo.createBooking(booking);
     await this.repo.deleteRequest(req._id);
     await this.mailer.sendMail({
@@ -108,7 +116,7 @@ export class BookingController {
   }
 
   @Post('/token')
-  async confirmToken(@Param() token: string) {
+  async confirmToken(@Query('token') token: string) {
     const matchingRequest = await this.repo.findRequestByToken(token);
     if (!matchingRequest) {
       return new NotFoundException();

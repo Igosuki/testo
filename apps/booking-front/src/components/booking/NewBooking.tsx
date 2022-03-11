@@ -19,27 +19,30 @@ type BookingParams = {
 };
 
 export function NewBooking() {
-  const [bookingDate, setBookingDate] = React.useState(minBookingDate());
+  const minDate = minBookingDate();
+  const maxDate = minDate.plus({ year: 3 });
+  const [bookingDate, setBookingDate] = React.useState(minDate);
+  const [referenceDate, setReferenceDate] = React.useState(minDate);
   const [fullname, setFullname] = React.useState<undefined | string>(undefined);
   const [email, setEmail] = React.useState<undefined | string>(undefined);
   const [numguests, setNumGuests] = React.useState(1);
-  const [bookingDates, setBookingDates] = React.useState([]);
+  const [disabledDates, setDisabledDates] = React.useState<string[]>([]);
   const [bookingError, setBookingError] = React.useState<null | string>(null);
   const navigate = useNavigate();
   React.useEffect(() => {
     async function fetchData() {
       try {
         const { data } = await axios.get(
-          `${environment.apiUrl}/api/bookings/available`,
+          `${environment.apiUrl}/api/bookings/fulldates?year=${referenceDate.year}&month=${referenceDate.month}`,
           {}
         );
-        setBookingDates(data);
+        setDisabledDates([...disabledDates, ...data]);
       } catch {
         navigate('/');
       }
     }
     fetchData();
-  }, [navigate]);
+  }, [navigate, referenceDate]);
 
   const handleNewBooking = async (booking: BookingParams) => {
     const { data } = await axios.post(
@@ -54,8 +57,6 @@ export function NewBooking() {
     }
   };
 
-  const minDate = minBookingDate();
-  const maxDate = minDate.plus({ year: 3 });
   return (
     <Box>
       <Box key="email">
@@ -89,10 +90,13 @@ export function NewBooking() {
           daysOfWeek
           bounds={[minDate.toISO(), maxDate.toISO()]}
           date={bookingDate.toISO()}
+          disabled={disabledDates}
+          onReference={(newDate) => {
+            setReferenceDate(DateTime.fromISO(newDate));
+          }}
           onSelect={(newDate) => {
             if (typeof newDate == 'string') {
               const d = DateTime.fromISO(newDate).set({ hour: 20 });
-              console.log(d.toISO());
               setBookingDate(d);
             }
           }}

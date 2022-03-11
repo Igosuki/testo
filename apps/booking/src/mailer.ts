@@ -2,7 +2,14 @@ import { environment } from './environments/environment';
 import { PugAdapter } from '@nestjs-modules/mailer/dist/adapters/pug.adapter';
 
 export const defaultMailerOptions = {
-  transport: environment.mailerUrl,
+  transport: {
+    host: 'smtp.mailtrap.io',
+    port: 2525,
+    auth: {
+      user: environment.mailerUser,
+      pass: environment.mailerPass,
+    },
+  },
   defaults: {
     from: `"bookings" <${environment.noreplyAddress}>"`,
   },

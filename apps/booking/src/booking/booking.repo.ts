@@ -6,7 +6,7 @@ import {
   BookingDocument,
   BookingRequest,
   BookingRequestDocument,
-  MAX_TABLES,
+  MAX_GUESTS,
   TABLE_SIZE,
 } from './booking.schema';
 
@@ -97,13 +97,14 @@ export class BookingsRepo {
    * @param from the start date
    * @param to the end date
    */
-  async availableDates(from: Date, to: Date, n: number): Promise<any> {
+  async fullDates(from: Date, to: Date, n: number): Promise<string[]> {
     const agg = [
       { $match: { date: { $gte: from, $lte: to } } },
       {
         $project: {
+          numguests: '$numguests',
           day: {
-            $dateToString: { format: '%Y-%m-%d:', date: '$date' },
+            $dateToString: { format: '%Y-%m-%d', date: '$date' },
           },
         },
       },
@@ -116,18 +117,16 @@ export class BookingsRepo {
     ];
     const bookingsCounts = await this.bookingModel.aggregate(agg);
     const requestsCounts = await this.bookingRequestModel.aggregate(agg);
-    console.log(bookingsCounts);
-    console.log(requestsCounts);
-    const counts: Map<string, number> = new Map();
-    bookingsCounts.forEach((r) => {
+    const counts = {};
+    [bookingsCounts, requestsCounts].flat().forEach((r) => {
       counts[r._id] = counts[r._id] ? counts[r._id] + r.count : r.count;
     });
-    requestsCounts.forEach((r) => {
-      counts[r._id] = counts[r._id] ? counts[r._id] + r.count : r.count;
-    });
-    return Array.from(counts.entries()).filter(
-      ([day, count]) => count <= n - TABLE_SIZE
-    );
+    console.log(Object.entries(counts));
+    let strings = Object.entries(counts)
+      .filter(([day, count]) => count > n - TABLE_SIZE)
+      .map(([day, count]) => day);
+    console.log(strings);
+    return strings;
   }
 
   /**
@@ -168,10 +167,22 @@ export class BookingsRepo {
    * @param date the date to check bookings for
    */
   async hasBooking(email: string, date: Date): Promise<boolean> {
-    return this.bookingModel
+    const onebooking = await this.bookingModel
       .findOne({ email: { $eq: email }, date: dateClause(date) })
-      .exec()
-      .then((v) => v != undefined);
+      .exec();
+    return !!onebooking;
+  }
+
+  /**
+   * Check wether or not a booking request exists for the given email and date
+   * @param email the email used for registration
+   * @param date the date to check bookings for
+   */
+  async hasBookingRequest(email: string, date: Date): Promise<boolean> {
+    const onebooking = await this.bookingRequestModel
+      .findOne({ email: { $eq: email }, date: dateClause(date) })
+      .exec();
+    return !!onebooking;
   }
 
   /**

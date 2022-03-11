@@ -5,7 +5,7 @@ import { BAD_INPUT_EMAIL } from '../messages';
 import { randomBytes } from 'crypto';
 import { Type } from 'class-transformer';
 
-export const MAX_TABLES = 20;
+export const MAX_GUESTS = 20;
 
 export const TABLE_SIZE = 2;
 
@@ -30,6 +30,16 @@ export class Booking {
 
   @Prop({ required: false })
   token: string;
+
+  static fromRequest(req: BookingRequest): Booking {
+    return {
+      fullname: req.fullname,
+      numguests: req.numguests,
+      email: req.email,
+      token: req.token,
+      date: req.date,
+    };
+  }
 }
 
 export type BookingDocument = Booking & Document;
@@ -48,10 +58,8 @@ export class BookingRequest extends Booking {
   override token: string;
 
   static fromBooking(booking: Booking): BookingRequest {
-    let token = '0';
-    randomBytes(48, function (err, buffer) {
-      token = buffer.toString('hex');
-    });
+    const buffer = randomBytes(48);
+    const token = buffer.toString('hex');
     return {
       ...booking,
       code: Math.floor(100000 + Math.random() * 900000).toString(),

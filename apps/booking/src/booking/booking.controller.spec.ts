@@ -86,9 +86,7 @@ describe('BookingController', () => {
         lastMail = mail;
       });
 
-      expect(await controller.newBooking(BOOKING_OK)).toMatchObject(
-        successRequest
-      );
+      await controller.newBooking(BOOKING_OK);
       expect(send).toHaveBeenCalled();
       expect(lastMail.data.from).toBe(environment.noreplyAddress);
       expect(lastMail.data.to).toBe(BOOKING_OK.email);
