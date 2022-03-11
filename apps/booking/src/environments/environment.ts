@@ -1,5 +1,6 @@
 export const environment = {
   production: false,
+  siteUrl: process.env.BOOKING_SITE_URL || 'http://localhost:4200',
   mongodbUrl:
     process.env.BOOKING_MONGO_URL ||
     'mongodb://bookings:password@localhost:27017/',

@@ -5,6 +5,9 @@ import { Route, Link, Routes } from 'react-router-dom';
 import { NewBooking } from '../components/booking/NewBooking';
 import { ConfirmBooking } from '../components/booking/ConfirmBooking';
 import { Yay } from '../components/booking/Yay';
+import { ConfirmTokenBooking } from '../components/booking/ConfirmTokenBooking';
+import { CancelBooking } from '../components/booking/CancelBooking';
+import { Ow } from '../components/booking/Ow';
 
 const theme = {
   global: {
@@ -26,7 +29,13 @@ export function App() {
               <Routes>
                 <Route path="/" element={<NewBooking />} />
                 <Route path="/confirm" element={<ConfirmBooking />} />
+                <Route
+                  path="/confirm_token"
+                  element={<ConfirmTokenBooking />}
+                />
+                <Route path="/cancel" element={<CancelBooking />} />
                 <Route path="/yay" element={<Yay />} />
+                <Route path="/ow" element={<Ow />} />
               </Routes>
             </Box>
           </Box>

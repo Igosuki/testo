@@ -76,7 +76,8 @@ export class BookingController {
       subject: 'Booking confirmation code',
       template: 'code_confirm',
       context: {
-        confirmationUrl: `https://bookings.com/confirm?token=${created.token}`,
+        confirmationUrl: `${environment.siteUrl}/confirm?email=${created.email}`,
+        tokenConfirmationUrl: `${environment.siteUrl}/confirm_token?token=${created.token}`,
         email: created.email,
         code: created.code,
         bookingDateStr: created.date.toDateString(),
@@ -110,7 +111,7 @@ export class BookingController {
       context: {
         email: created.email,
         bookingDateStr: created.date.toDateString(),
-        cancellationUrl: `https://bookings.com/cancel?token=${created.token}`,
+        cancellationUrl: `${environment.siteUrl}/cancel?token=${created.token}`,
       },
     });
   }
@@ -126,7 +127,7 @@ export class BookingController {
   }
 
   @Delete()
-  async cancel(@Param() token: string) {
+  async cancel(@Query('token') token: string) {
     const matchingBooking = await this.repo.findBookingByToken(token);
     if (!matchingBooking) {
       return new NotFoundException();
