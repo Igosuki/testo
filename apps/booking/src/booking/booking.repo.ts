@@ -62,9 +62,8 @@ export class BookingsRepo {
    * For a day, return the number of guests.
    * @param date the day for which to count tables
    */
-  async tableCount(date: Date): Promise<any> {
+  async tableCount(date: Date): Promise<number> {
     const query = [
-      { $match: { date: dateClause(date) } },
       {
         $project: {
           numguestsadjusted: {
@@ -83,11 +82,11 @@ export class BookingsRepo {
       this.bookingModel.aggregate(query).exec(),
       this.bookingRequestModel.aggregate(query).exec(),
     ]).then((counts) => {
-      counts
-        .map((v) => v['tableCount'])
+      return counts
+        .filter((v) => !!v && Array.isArray(v) && v.length > 0)
+        .map((v) => v[0]['tableCount'])
         .reduce((a, b) => {
-          console.log(a, b);
-          a + b;
+          return a + b;
         }, 0);
     });
   }
@@ -121,11 +120,9 @@ export class BookingsRepo {
     [bookingsCounts, requestsCounts].flat().forEach((r) => {
       counts[r._id] = counts[r._id] ? counts[r._id] + r.count : r.count;
     });
-    console.log(Object.entries(counts));
-    let strings = Object.entries(counts)
+    const strings = Object.entries(counts)
       .filter(([day, count]) => count > n - TABLE_SIZE)
       .map(([day, count]) => day);
-    console.log(strings);
     return strings;
   }
 

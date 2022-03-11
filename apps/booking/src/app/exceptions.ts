@@ -53,7 +53,6 @@ export class AllExceptionsFilter implements ExceptionFilter {
         translatedMessages.push(msgs);
       }
     }
-    console.log(msgs, translatedMessages);
 
     const responseBody = {
       statusCode: status,

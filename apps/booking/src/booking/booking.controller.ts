@@ -37,6 +37,12 @@ const checkNotAfterHours = (date: Date) => {
 export class BookingController {
   constructor(private repo: BookingsRepo, private mailer: MailerService) {}
 
+  @Get('/tables')
+  async tableCount(): Promise<any> {
+    const count = await this.repo.tableCount(new Date(Date.now()));
+    return { tableCount: count };
+  }
+
   @Get('/fulldates')
   async fullDates(
     @Query('month', ParseIntPipe) month: number,
@@ -56,10 +62,7 @@ export class BookingController {
       throw new BadRequestException({ message: 'validation.afterhours' });
     }
     const tableCount = await this.repo.tableCount(booking.date);
-    if (
-      tableCount + Math.ceil(booking.numguests / TABLE_SIZE) * TABLE_SIZE >
-      MAX_GUESTS
-    ) {
+    if (tableCount * TABLE_SIZE > MAX_GUESTS) {
       throw new BadRequestException({ message: 'validation.bookingsfull' });
     }
     if (

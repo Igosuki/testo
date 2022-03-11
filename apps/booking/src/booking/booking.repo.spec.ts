@@ -3,13 +3,19 @@ import { Test } from '@nestjs/testing';
 import { BookingsRepo } from './booking.repo';
 import { BOOKING_OK } from './booking.fixtures';
 import { getModelToken } from '@nestjs/mongoose';
-import { Booking, BookingSchema } from './booking.schema';
+import {
+  Booking,
+  BookingRequest,
+  BookingRequestSchema,
+  BookingSchema,
+} from './booking.schema';
 import { model } from 'mongoose';
 import * as mockingoose from 'mockingoose';
 
 describe('BookingsRepo', () => {
   let service: BookingsRepo;
   const bookingModel = model(Booking.name, BookingSchema);
+  const bookingRequestModel = model(BookingRequest.name, BookingRequestSchema);
 
   beforeAll(async () => {
     const app = await Test.createTestingModule({
@@ -18,6 +24,10 @@ describe('BookingsRepo', () => {
         {
           provide: getModelToken(Booking.name),
           useValue: bookingModel,
+        },
+        {
+          provide: getModelToken(BookingRequest.name),
+          useValue: bookingRequestModel,
         },
       ],
     }).compile();
@@ -67,7 +77,8 @@ describe('BookingsRepo', () => {
   });
 
   describe('tableCount', () => {
-    mockingoose(bookingModel).toReturn(2, 'count');
+    mockingoose(bookingModel).toReturn({ tableCount: 2 }, 'aggregate');
+    mockingoose(bookingRequestModel).toReturn({ tableCount: 2 }, 'aggregate');
 
     it('should return the table count', async () => {
       const tableCount = await service.tableCount(new Date());
