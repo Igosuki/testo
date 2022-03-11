@@ -149,6 +149,3 @@ export class BookingController {
     });
   }
 }
-
-/// send email at 7pm with room setup
-/// compute a score with based on previous seating based on email, and rank each table group

@@ -68,11 +68,14 @@ describe('BookingController', () => {
   describe('newBooking', () => {
     it('should return created and send mail', async () => {
       jest
+        .spyOn(bookingRepo, 'tableCount')
+        .mockImplementation(() => Promise.resolve(0));
+      jest
         .spyOn(bookingRepo, 'hasBooking')
         .mockImplementation(() => Promise.resolve(false));
       jest
-        .spyOn(bookingRepo, 'tableCount')
-        .mockImplementation(() => Promise.resolve(0));
+        .spyOn(bookingRepo, 'hasBookingRequest')
+        .mockImplementation(() => Promise.resolve(false));
       const successRequest = {
         ...BOOKING_OK,
         createdAt: new Date(Date.now()),
@@ -95,7 +98,7 @@ describe('BookingController', () => {
         bookingDateStr: 'Sat Feb 01 2020',
         code: '123456',
         email: 'itsme@me.com',
-        confirmationUrl: 'https://bookings.com/confirm?token=token',
+        confirmationUrl: 'http://localhost:4200/confirm?email=itsme@me.com',
       });
     });
   });
@@ -138,7 +141,7 @@ describe('BookingController', () => {
       expect(lastMail.data['context']).toMatchObject({
         bookingDateStr: 'Sat Feb 01 2020',
         email: 'itsme@me.com',
-        cancellationUrl: 'https://bookings.com/cancel?token=token',
+        cancellationUrl: 'http://localhost:4200/cancel?token=token',
       });
     });
   });
@@ -147,13 +150,13 @@ describe('BookingController', () => {
     it('should return created and send mail', async () => {
       const requestOk = BOOKING_REQUEST_OK;
 
-      jest.spyOn(bookingRepo, 'findRequestByEmail').mockImplementation(() =>
-        Promise.resolve([
+      jest.spyOn(bookingRepo, 'findRequestByToken').mockImplementation(() =>
+        Promise.resolve(
           new bookingRequestModel({
             ...requestOk,
             _id: 'id_booking_req',
-          }) as BookingRequestDocument,
-        ])
+          }) as BookingRequestDocument
+        )
       );
       jest.spyOn(bookingRepo, 'createBooking').mockImplementation(() =>
         Promise.resolve(
@@ -178,7 +181,7 @@ describe('BookingController', () => {
       expect(lastMail.data['context']).toMatchObject({
         bookingDateStr: 'Sat Feb 01 2020',
         email: 'itsme@me.com',
-        cancellationUrl: 'https://bookings.com/cancel?token=token',
+        cancellationUrl: 'http://localhost:4200/cancel?token=token',
       });
     });
   });

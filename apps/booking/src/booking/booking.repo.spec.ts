@@ -77,12 +77,12 @@ describe('BookingsRepo', () => {
   });
 
   describe('tableCount', () => {
-    mockingoose(bookingModel).toReturn({ tableCount: 2 }, 'aggregate');
-    mockingoose(bookingRequestModel).toReturn({ tableCount: 2 }, 'aggregate');
+    mockingoose(bookingModel).toReturn([{ tableCount: 2 }], 'aggregate');
+    mockingoose(bookingRequestModel).toReturn([{ tableCount: 2 }], 'aggregate');
 
     it('should return the table count', async () => {
       const tableCount = await service.tableCount(new Date());
-      expect(tableCount).toEqual(2);
+      expect(tableCount).toEqual(4);
     });
   });
 

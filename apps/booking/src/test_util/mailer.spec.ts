@@ -34,3 +34,9 @@ export function spyOnSmtpSend(onMail: (mail: MailMessage) => void) {
       });
     });
 }
+
+describe('Mailer', () => {
+  it('should be defined', () => {
+    expect(0).toBeDefined();
+  });
+});

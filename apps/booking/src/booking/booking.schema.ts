@@ -73,3 +73,22 @@ export type BookingRequestDocument = BookingRequest & Document;
 
 export const BookingRequestSchema =
   SchemaFactory.createForClass(BookingRequest);
+
+@Schema()
+export class ClientScore {
+  @Prop({ type: Date, default: Date.now })
+  updatedAt: Date;
+
+  @Prop({ required: true })
+  email: string;
+
+  @Prop({ required: true })
+  score: number;
+
+  @Prop({ required: true })
+  bookings: number;
+}
+
+export type ClientScoreDocument = ClientScore & Document;
+
+export const ClientScoreSchema = SchemaFactory.createForClass(ClientScore);
