@@ -1,0 +1,73 @@
+{
+  "root": "apps/booking-front",
+  "sourceRoot": "apps/booking-front/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nrwl/web:webpack",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "compiler": "babel",
+        "outputPath": "dist/apps/booking-front",
+        "index": "apps/booking-front/src/index.html",
+        "baseHref": "/",
+        "main": "apps/booking-front/src/main.tsx",
+        "polyfills": "apps/booking-front/src/polyfills.ts",
+        "tsConfig": "apps/booking-front/tsconfig.app.json",
+        "assets": [
+          "apps/booking-front/src/favicon.ico",
+          "apps/booking-front/src/assets"
+        ],
+        "styles": [],
+        "scripts": [],
+        "webpackConfig": "@nrwl/react/plugins/webpack"
+      },
+      "configurations": {
+        "production": {
+          "fileReplacements": [
+            {
+              "replace": "apps/booking-front/src/environments/environment.ts",
+              "with": "apps/booking-front/src/environments/environment.prod.ts"
+            }
+          ],
+          "optimization": true,
+          "outputHashing": "all",
+          "sourceMap": false,
+          "namedChunks": false,
+          "extractLicenses": true,
+          "vendorChunk": false
+        }
+      }
+    },
+    "serve": {
+      "executor": "@nrwl/web:dev-server",
+      "options": {
+        "buildTarget": "booking-front:build:development",
+        "hmr": true
+      },
+      "configurations": {
+        "production": {
+          "buildTarget": "booking-front:build:production",
+          "hmr": false
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["apps/booking-front/**/*.{ts,tsx,js,jsx}"]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/apps/booking-front"],
+      "options": {
+        "jestConfig": "apps/booking-front/jest.config.js",
+        "passWithNoTests": true
+      }
+    }
+  },
+  "tags": []
+}

@@ -1,0 +1,75 @@
+{
+  "root": "apps/booking",
+  "sourceRoot": "apps/booking/src",
+  "projectType": "application",
+  "targets": {
+    "deploy": {
+        "builder": "@nrwl/workspace:run-commands",
+        "options": {
+          "commands": [
+            "nx build api",
+            "docker build -f ./apps/booking/Dockerfile . -t booking-api"
+          ],
+          "parallel": false
+        }
+    },
+    "build": {
+      "executor": "@nrwl/node:webpack",
+      "outputs": [
+        "{options.outputPath}"
+      ],
+      "options": {
+        "outputPath": "dist/apps/booking",
+        "main": "apps/booking/src/main.ts",
+        "tsConfig": "apps/booking/tsconfig.app.json",
+        "assets": [
+          "apps/booking/src/assets",
+          "apps/booking/src/i18n",
+          "apps/booking/src/templates"
+        ],
+        "generatePackageJson": true
+      },
+      "configurations": {
+        "production": {
+          "optimization": true,
+          "extractLicenses": true,
+          "inspect": false,
+          "fileReplacements": [
+            {
+              "replace": "apps/booking/src/environments/environment.ts",
+              "with": "apps/booking/src/environments/environment.prod.ts"
+            }
+          ]
+        }
+      }
+    },
+    "serve": {
+      "executor": "@nrwl/node:node",
+      "options": {
+        "buildTarget": "booking:build"
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": [
+        "{options.outputFile}"
+      ],
+      "options": {
+        "lintFilePatterns": [
+          "apps/booking/**/*.ts"
+        ]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": [
+        "coverage/apps/booking"
+      ],
+      "options": {
+        "jestConfig": "apps/booking/jest.config.js",
+        "passWithNoTests": true
+      }
+    }
+  },
+  "tags": []
+}

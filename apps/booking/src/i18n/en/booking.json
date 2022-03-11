@@ -1,0 +1,8 @@
+{
+  "validation": {
+    "email.bad": "bad email address",
+    "afterhours": "cannot book after hours",
+    "bookingsfull": "no more room for this date",
+    "sameday": "cannot book twice on the same day"
+  }
+}

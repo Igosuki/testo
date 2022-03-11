@@ -1,0 +1,26 @@
+version: '3'
+
+services:
+  mongo:
+    container_name: bookmong
+    image: mongo
+    restart: always
+    ports:
+      - "27017:27017"
+    env_file: env.dev
+
+  mongo-express:
+    image: mongo-express
+    restart: always
+    ports:
+      - "8081:8081"
+    env_file: env.dev
+
+#  booking-api:
+#    image: booking-api
+#    restart: always
+#    ports:
+#      - "3333:3333"
+#    env_file: env.dev
+#
+#

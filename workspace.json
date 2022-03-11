@@ -1,0 +1,8 @@
+{
+  "version": 2,
+  "projects": {
+    "booking": "apps/booking",
+    "booking-front": "apps/booking-front",
+    "booking-front-e2e": "apps/booking-front-e2e"
+  }
+}

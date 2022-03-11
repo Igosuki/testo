@@ -1,0 +1,28 @@
+{
+  "root": "apps/booking-front-e2e",
+  "sourceRoot": "apps/booking-front-e2e/src",
+  "projectType": "application",
+  "targets": {
+    "e2e": {
+      "executor": "@nrwl/cypress:cypress",
+      "options": {
+        "cypressConfig": "apps/booking-front-e2e/cypress.json",
+        "devServerTarget": "booking-front:serve"
+      },
+      "configurations": {
+        "production": {
+          "devServerTarget": "booking-front:serve:production"
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["apps/booking-front-e2e/**/*.{js,ts}"]
+      }
+    }
+  },
+  "tags": [],
+  "implicitDependencies": ["booking-front"]
+}
