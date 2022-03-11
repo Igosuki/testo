@@ -45,13 +45,15 @@ export function NewBooking() {
   }, [navigate, referenceDate]);
 
   const handleNewBooking = async (booking: BookingParams) => {
-    const { data } = await axios.post(
+    const resp = await axios.post(
       `${environment.apiUrl}/api/bookings`,
       booking
     );
-    if (data.status === 201) {
-    } else if (data.status === 400) {
-      setBookingError(data.message);
+    if (resp.status === 201) {
+      console.log('Success !');
+      navigate(`/confirm?email=${booking.email}`);
+    } else if (resp.status === 400) {
+      setBookingError(resp.data.message);
     } else {
       setBookingError('something went wrong');
     }
