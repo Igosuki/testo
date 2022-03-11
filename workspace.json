@@ -1,6 +1,7 @@
 {
   "version": 2,
   "projects": {
+    "admin-notifier": "apps/admin-notifier",
     "booking": "apps/booking",
     "booking-front": "apps/booking-front",
     "booking-front-e2e": "apps/booking-front-e2e"

@@ -1,0 +1,52 @@
+{
+  "root": "apps/admin-notifier",
+  "sourceRoot": "apps/admin-notifier/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nrwl/node:webpack",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/apps/admin-notifier",
+        "main": "apps/admin-notifier/src/main.ts",
+        "tsConfig": "apps/admin-notifier/tsconfig.app.json",
+        "assets": ["apps/admin-notifier/src/assets"]
+      },
+      "configurations": {
+        "production": {
+          "optimization": true,
+          "extractLicenses": true,
+          "inspect": false,
+          "fileReplacements": [
+            {
+              "replace": "apps/admin-notifier/src/environments/environment.ts",
+              "with": "apps/admin-notifier/src/environments/environment.prod.ts"
+            }
+          ]
+        }
+      }
+    },
+    "serve": {
+      "executor": "@nrwl/node:node",
+      "options": {
+        "buildTarget": "admin-notifier:build"
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["apps/admin-notifier/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/apps/admin-notifier"],
+      "options": {
+        "jestConfig": "apps/admin-notifier/jest.config.js",
+        "passWithNoTests": true
+      }
+    }
+  },
+  "tags": []
+}
