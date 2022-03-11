@@ -19,7 +19,7 @@ export function ConfirmBooking() {
       `${environment.apiUrl}/api/bookings/code?email=${email}&code=${code}`
     );
     if (resp.status === 201) {
-      navigate('yay');
+      navigate('/yay');
     } else if (resp.status % 400 > 0) {
       setCodeError(resp.data.message);
     } else {
